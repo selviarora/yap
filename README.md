@@ -3,7 +3,7 @@
 past me helps present me. 👻
 
 ```bash
-$ cd payments-service
+$ cd authentication
 $ yap
 
   ghosts:
