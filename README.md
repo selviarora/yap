@@ -1,130 +1,169 @@
 # yap
 
-yap until you're ready to ship!! 🤓
-
-a CLI for free-form conversations that maintain a living "truth" doc. ramble, mark what matters, then hand off to claude code. 🚀
-
-## installation
+yap until you're ready to ship!!
 
 ```bash
-cd yap
-npm install
-npm run build
-npm link  # makes 'yap' available globally
-```
-
-## quickstart
-
-```bash
-# Initialize
-cd your-project
-yap init
-
-# Add messages 
-yap "D: Use SQLite for storage"
-yap "T: Set up the database"
-yap "A: User can add and list items"
-
-# Or use REPL mode
 yap
-> D: Use React for frontend
-> T: Build login page
-> X: Build login page     # marks done
-> ship                    # hand off to Claude
-> q                       # quit
-
-# When ready to implement
-yap ship
+> thinking about a notes app...
+> maybe markdown files?
+> D: Store notes as markdown files
+> D: Flat folder, no nesting
+> T: Set up CLI
+> A: User can create and list notes
+> ship
 ```
 
-## commands
+your rambling → clean spec → Claude Code builds it.
 
-| Command | Description |
-|---------|-------------|
-| `yap` | Start REPL mode (interactive) |
-| `yap "<msg>"` | Add message and sync |
-| `yap init` | Initialize `.assistant/` folder |
-| `yap sync` | Re-sync (use `--full` to reprocess all) |
-| `yap ship` | Launch Claude Code with truth.md |
-| `yap archive` | Archive conversation, keep truth.md |
-| `yap help` | Show help |
+## how it works
+
+```
+┌─────────────────┐         ┌──────────────────┐         ┌─────────────┐
+│  You ramble     │ ──────▶ │  Markers get     │ ──────▶ │  truth.md   │
+│  in terminal    │         │  extracted       │         │  stays clean│
+└─────────────────┘         └──────────────────┘         └─────────────┘
+```
+
+1. type freely in the terminal
+2. prefix important lines with markers (`D:` decision, `T:` todo, etc.)
+3. marked lines get extracted to `truth.md`
+4. everything else is just logged, doesn't pollute the spec
+5. when ready, `ship` hands the clean spec to Claude Code
+
+## install
+
+```bash
+git clone https://github.com/selviarora/yap.git
+cd yap
+npm install && npm run build
+npm link
+```
+
+## usage
+
+```bash
+yap init              # set up .yap/ folder
+yap "D: Use SQLite"   # add a decision
+yap "T: Write tests"  # add a todo
+yap                   # enter REPL mode
+yap ship              # hand off to Claude Code
+```
 
 ## markers
 
-Use these prefixes to capture items in truth.md:
-
-### short forms(recommended)
-
-| Marker | Meaning | Example |
-|--------|---------|---------|
+| Marker | What it does | Example |
+|--------|--------------|---------|
 | `D:` | Decision | `D: Use PostgreSQL` |
-| `C:` | Constraint | `C: Must run offline` |
-| `T:` | TODO | `T: Write tests` |
+| `T:` | Todo | `T: Write tests` |
+| `C:` | Constraint | `C: Must work offline` |
 | `Q:` | Question | `Q: Redis or Memcached?` |
-| `A:` | Acceptance | `A: User can log in` |
+| `A:` | Acceptance criteria | `A: User can log in` |
 | `UX:` | UX requirement | `UX: Show loading spinner` |
 | `DOM:` | Domain concept | `DOM: A "task" has title and status` |
 
-### modifiers
+**modifiers:**
 
-| Marker | Meaning | Example |
-|--------|---------|---------|
-| `D!:` | Update decision | `D!: Use MySQL instead` |
-| `DEL:` | Delete item | `DEL: Redis question` |
-| `X:` | Mark TODO done | `X: Write tests` |
+| Marker | What it does | Example |
+|--------|--------------|---------|
+| `D!:` | Update a decision | `D!: Use MySQL instead` |
+| `X:` | Mark todo done | `X: Write tests` |
 | `R:` | Resolve question | `R: Redis` |
-
-### long forms
-
-`DECISION:`, `CONSTRAINT:`, `TODO:`, `QUESTION:`, `ACCEPTANCE:`, `DOMAIN:`, `DECISION-UPDATE:`, `DELETE:`, `DONE:`, `RESOLVED:`
+| `DEL:` | Delete any item | `DEL: old todo` |
 
 ## example session
 
 ```bash
-yap init
-yap "thinking about a bookmark manager..."
-yap "D: Store in SQLite"
-yap "D: CLI only, no web UI"
-yap "C: Must work offline"
-yap "A: Can add bookmark with 'bm add <url>'"
-yap "A: Can search with 'bm search <query>'"
-yap "T: Set up project"
-yap "T: Implement add command"
-yap "Q: Should we support tags?"
+$ cd my-project && yap init
 
-# Change decision
-yap "D!: Store in JSON file (simpler)"
-
-# Resolve question
-yap "R: tags"  # or answer it: yap "D: Yes, support tags"
-
-# Mark todo done
-yap "X: Set up project"
-
-# Ship to Claude Code
-yap ship
+$ yap
+> thinking about a bookmark manager
+> maybe just a json file
+> D: Store bookmarks in ~/.bookmarks.json
+> D: CLI called "bm"
+> A: bm add <url> saves bookmark
+> A: bm list shows all
+> A: bm search <query> finds by title
+> T: Set up project
+> T: Implement add command
+> T: Implement list command
+> C: No external dependencies
+> Q: Support tags?
+> nah skip for v1
+> R: tags
+> ship
 ```
+
+**result in `.yap/truth.md`:**
+
+```markdown
+## Decisions
+- Store bookmarks in ~/.bookmarks.json
+- CLI called "bm"
+
+## Acceptance Criteria
+- bm add <url> saves bookmark
+- bm list shows all
+- bm search <query> finds by title
+
+## TODOs
+- Set up project
+- Implement add command
+- Implement list command
+
+## Constraints
+- No external dependencies
+
+## Questions
+- [x] Support tags?
+```
+
+Claude Code gets this clean spec and builds it.
+
+**later, change your mind:**
+
+```bash
+$ yap "D!: Use SQLite instead of JSON"   # replaces JSON decision
+$ yap "X: Set up project"                 # marks done
+$ yap "T: Add migration script"           # new todo
+```
+
+## commands
+
+| Command | What it does |
+|---------|--------------|
+| `yap` | REPL mode - just type |
+| `yap "<msg>"` | Quick add without REPL |
+| `yap init` | Set up `.yap/` folder |
+| `yap ship` | Launch Claude Code with spec |
+| `yap sync --full` | Reprocess all messages |
+| `yap archive` | Archive old messages |
 
 ## how sync works
 
 1. only new messages are processed
 2. manual edits to truth.md are preserved
 3. same marker twice won't duplicate
-4. `.assistant/.sync-state.json` tracks progress
+4. `.yap/.sync-state.json` tracks progress
 
-Use `yap sync --full` to reprocess everything (useful if state gets corrupted). 
+use `yap sync --full` to reprocess everything if state gets corrupted.
 
 ## file structure
 
 ```
 your-project/
-├── .assistant/
-│   ├── conversation.jsonl     # Message log
-│   ├── truth.md               # Living truth document
-│   ├── truth.template.md      # Template
-│   ├── .sync-state.json       # Sync tracking
-│   └── archive/               # Archived conversations
-└── SHIP_INSTRUCTIONS.md       # Generated on ship
+├── .yap/
+│   ├── conversation.jsonl   # everything you typed
+│   ├── truth.md             # extracted spec (the source of truth)
+│   └── archive/             # old conversations
+└── SHIP_INSTRUCTIONS.md     # generated on ship
 ```
 
+## why?
 
+when planning a project, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
+
+yap lets you think out loud while automatically extracting the important bits into a clean spec.
+
+## license
+
+MIT

@@ -1,6 +1,6 @@
 import path from 'path';
 
-export const ASSISTANT_DIR = '.assistant';
+export const ASSISTANT_DIR = '.yap';
 export const CONVERSATION_FILE = 'conversation.jsonl';
 export const TRUTH_FILE = 'truth.md';
 export const TRUTH_TEMPLATE_FILE = 'truth.template.md';

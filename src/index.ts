@@ -172,7 +172,7 @@ USAGE:
   yap <command>           Run a specific command
 
 COMMANDS:
-  init          Initialize .assistant/ folder
+  init          Initialize .yap/ folder
   sync          Re-sync markers to truth.md (--full to reprocess all)
   ship          Generate Claude Code instructions
   archive       Archive old messages
