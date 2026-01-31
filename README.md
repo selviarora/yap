@@ -128,9 +128,3 @@ your-project/
 ```
 
 
-## Philosophy
-
-- **chat freely** - not everything needs to be captured
-- **mark what matters** - use prefixes to extract truth
-- **Edit truth.md** - it's yours, manual edits are preserved
-- **ship when ready** - caude Code gets a clean spec ❇️
