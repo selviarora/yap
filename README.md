@@ -26,7 +26,7 @@ $ yap here
 
 you're coding and you think "this feels wrong" or "come back to this" or "ask X about Y"
 
-these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost. (at least for me)
+these thoughts don't belong in code comments, commit messages, or issues. they usually just get lost. (at least for me)
 
 - not in the code (clutters it)
 - not in a commit (not ready)
