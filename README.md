@@ -16,11 +16,11 @@ $ yap
 
 ## why i made this
 
-i keep mass forgetting things. i'll be debugging, think "this is weird" or "ask X about this," and then... nothing. i move on.
+i have mass goldfish memory. i'll be debugging, think "this is weird" or "ask X about this," and then... nothing. i move on.
 
 a month later i'm back in the same file. i solve the same problem twice. or worse, i break something i already knew was fragile.
 
-so i built yap. now when i notice something:
+so i built yap - finally a fix for my mass goldfish brain. now when i notice something:
 
 ```bash
 yap "this retry logic is cursed"
