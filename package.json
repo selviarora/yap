@@ -9,11 +9,37 @@
   "scripts": {
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build && npm test"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cli",
+    "spec",
+    "planning",
+    "decisions",
+    "truth",
+    "claude",
+    "ai",
+    "workflow"
+  ],
+  "author": "Selvi Arora",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/selviarora/yap.git"
+  },
+  "homepage": "https://github.com/selviarora/yap#readme",
+  "bugs": {
+    "url": "https://github.com/selviarora/yap/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.0",

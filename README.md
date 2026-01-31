@@ -1,6 +1,11 @@
 # yap
 
+[![CI](https://github.com/selviarora/yap/actions/workflows/ci.yml/badge.svg)](https://github.com/selviarora/yap/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/yap-cli.svg)](https://www.npmjs.com/package/yap-cli)
+
 yap until you're ready to ship.
+
+![demo](./demo.gif)
 
 ```bash
 yap
@@ -37,6 +42,12 @@ yap lets you think out loud while automatically extracting the important bits in
 5. when ready, `ship` hands the clean spec to Claude Code
 
 ## install
+
+```bash
+npm install -g yap-cli
+```
+
+or from source:
 
 ```bash
 git clone https://github.com/selviarora/yap.git
