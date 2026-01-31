@@ -2,7 +2,7 @@
 
 yap until you're ready to ship!! 🤓
 
-a CLI for free-form conversations that maintain a living "truth" document. Ramble, mark what matters, then hand off to Claude Code.
+a CLI for free-form conversations that maintain a living "truth" doc. ramble, mark what matters, then hand off to Claude Code. 🚀
 
 ## Installation
 
