@@ -28,6 +28,8 @@ $ yap
 
 your rambling → clean spec → claude code builds it.
 
+`D:` decision, `T:` todo, `Q:` question, `X:` done. [all markers ↓](#markers)
+
 ## why
 
 when planning, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
