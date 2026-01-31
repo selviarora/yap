@@ -79,7 +79,7 @@ function groupByDirectory(thoughts: Thought[]): Map<string, Thought[]> {
 
 // Commands
 
-function capture(text: string): void {
+function capture(text: string, isTodo: boolean = false): void {
   const context = getContext();
 
   saveThought({
@@ -88,9 +88,28 @@ function capture(text: string): void {
     branch: context.branch,
     directory: context.directory,
     timestamp: context.timestamp,
+    todo: isTodo || undefined,
   });
 
-  console.log(dim('captured'));
+  console.log(dim(isTodo ? 'captured (todo)' : 'captured'));
+}
+
+async function interactiveCapture(): Promise<void> {
+  const readline = await import('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise((resolve) => {
+    rl.question(dim('yap: '), (answer) => {
+      rl.close();
+      if (answer.trim()) {
+        capture(answer.trim());
+      }
+      resolve();
+    });
+  });
 }
 
 function showLog(filter?: string): void {
@@ -188,20 +207,22 @@ function showHere(): void {
 
 function showHelp(): void {
   console.log(`
-${bold('yap')} - capture developer thoughts
+${bold('yap')} - capture thoughts before they disappear
 
-${bold('usage:')}
-  yap "thought"       capture a thought
-  yap                 capture (opens prompt)
-  yap ?               thoughts about current repo
-  yap log             recent thoughts (this week)
-  yap log today       today's thoughts
-  yap log --week      this week's thoughts
+${bold('capture:')}
+  yap "thought"         save a thought
+  yap                   quick capture
+  yap todo "thought"    mark as actionable
+
+${bold('recall:')}
+  yap here              thoughts about this repo
+  yap log               this week
+  yap log today         just today
 
 ${bold('examples:')}
-  yap "this retry logic feels wrong"
-  yap "ask infra about rate limits"
-  yap "come back to this after lunch"
+  yap "this retry logic smells off"
+  yap todo "ask infra about rate limits"
+  yap "why is this nullable"
 `);
 }
 
@@ -211,28 +232,29 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0) {
-    // No args - show help for now (later: quick capture mode)
-    showHelp();
+    await interactiveCapture();
     return;
   }
 
   const command = args[0];
 
-  // yap "thought" - capture
-  if (command.startsWith('"') || command.startsWith("'") || (!['log', '?', 'help', '--help', '-h'].includes(command) && args.length === 1)) {
-    // Join all args as the thought
-    const thought = args.join(' ').replace(/^["']|["']$/g, '');
-    capture(thought);
-    return;
-  }
-
   switch (command) {
     case '?':
+    case 'here':
       showHere();
       break;
 
     case 'log':
       showLog(args[1]);
+      break;
+
+    case 'todo':
+      if (args.length > 1) {
+        const thought = args.slice(1).join(' ').replace(/^["']|["']$/g, '');
+        capture(thought, true);
+      } else {
+        console.log(dim('usage: yap todo "thought"'));
+      }
       break;
 
     case 'help':
@@ -243,7 +265,8 @@ async function main(): Promise<void> {
 
     default:
       // Treat as thought
-      capture(args.join(' '));
+      const thought = args.join(' ').replace(/^["']|["']$/g, '');
+      capture(thought);
       break;
   }
 }

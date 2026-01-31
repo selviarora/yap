@@ -3,33 +3,45 @@
 capture your thoughts before they disappear.
 
 ```bash
-$ yap "this retry logic feels wrong"
+$ yap "this retry logic smells off"
 captured
 
-$ yap "ask infra about rate limits"
-captured
+$ yap todo "ask infra about rate limits"
+captured (todo)
 
-$ yap ?
+$ yap here
 
-  2 thoughts in payments-service
+  3 thoughts in payments-service
   branch: fix/retry-bug
 
   src/api (2)
-    9:42am  "this retry logic feels wrong"
-    9:51am  "ask infra about rate limits"
+    9:42am  "this retry logic smells off"
+    10:15am "ask infra about rate limits" [todo]
+
+  src/models (1)
+    10:34am "why is payment_method nullable"
 ```
 
-## why
+## the problem
 
-developers think in fragments:
-- "this feels wrong"
-- "come back to this"
-- "why is this like this?"
-- "ask X about Y"
+you're coding and you think "this feels wrong" or "come back to this" or "ask X about Y"
 
-these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost. (at least for me 🤓) 
+these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost. (at least for me)
 
-yap captures them with zero friction, right where you work: the terminal.
+- not in the code (clutters it)
+- not in a commit (not ready)
+- not in a ticket (too small)
+- not in notion (too far away)
+
+so it just... disappears. and you forget.
+
+## the fix
+
+```bash
+yap "thought"
+```
+
+that's it. it saves your thought with the repo, branch, and directory automatically. you don't have to context-switch or open anything.
 
 ## install
 
@@ -37,69 +49,31 @@ yap captures them with zero friction, right where you work: the terminal.
 npm install -g yap-cli
 ```
 
-## usage
+## commands
 
 ```bash
-yap "thought"          # capture a thought
-yap ?                  # what was I thinking here? (current repo)
-yap log                # recent thoughts
-yap log today          # today's thoughts
+yap "thought"        # capture
+yap                  # quick capture (interactive)
+yap todo "thought"   # capture as actionable
+yap here             # show thoughts for this repo
+yap log              # show this week
+yap log today        # show today
 ```
 
-## what gets captured
+## it just works
 
-when you yap, it saves:
-- your thought
+when you yap, it automatically saves:
+- what you said
+- which repo you're in
+- which branch
+- which directory
 - timestamp
-- git repo + branch (if in a repo)
-- current directory
 
-you never have to add this context manually.
-
-## examples
-
-```bash
-# morning, debugging
-~/payments (main) $ yap "why does this retry 5 times with no backoff"
-captured
-
-# later, different file
-~/payments (main) $ yap "User.payment_method nullable but never checked"
-captured
-
-# lunch, come back confused
-~/payments (main) $ yap ?
-
-  2 thoughts in payments
-  branch: main
-
-  src/api (1)
-    9:42am  "why does this retry 5 times with no backoff"
-
-  src/models (1)
-    10:34am  "User.payment_method nullable but never checked"
-
-# end of week
-$ yap log
-
-  7 thoughts this week
-
-  payments (4)
-    ...
-  auth-service (3)
-    ...
-```
+so later when you're like "wtf was i thinking about this file", you just run `yap here` and it all comes back.
 
 ## storage
 
-thoughts are stored in `~/.yap/thoughts.jsonl`. plain text, yours forever.
-
-## philosophy
-
-- capture fast, structure later (or never)
-- context is automatic
-- no AI magic, just recall
-- your thoughts, local, private
+everything lives in `~/.yap/thoughts.jsonl`. plain text, local, yours.
 
 ## license
 
