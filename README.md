@@ -17,7 +17,7 @@ your rambling → clean spec → claude code builds it.
 
 ## why?
 
-when planning a project, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
+when planning, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
 
 yap lets you think out loud while automatically extracting the important bits into a clean spec.
 
