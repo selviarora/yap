@@ -13,7 +13,7 @@ yap
 > ship
 ```
 
-your rambling → clean spec → Claude Code builds it.
+your rambling → clean spec → claude code builds it.
 
 ## why?
 
