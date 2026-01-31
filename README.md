@@ -1,6 +1,6 @@
 # yap
 
-yap until you're ready to ship!!
+yap until you're ready to ship.
 
 ```bash
 yap
@@ -14,6 +14,12 @@ yap
 ```
 
 your rambling → clean spec → Claude Code builds it.
+
+## why?
+
+when planning a project, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
+
+yap lets you think out loud while automatically extracting the important bits into a clean spec.
 
 ## how it works
 
@@ -157,12 +163,6 @@ your-project/
 │   └── archive/             # old conversations
 └── SHIP_INSTRUCTIONS.md     # generated on ship
 ```
-
-## why?
-
-when planning a project, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
-
-yap lets you think out loud while automatically extracting the important bits into a clean spec.
 
 ## license
 
