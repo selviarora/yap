@@ -20,7 +20,7 @@ i keep forgetting things. i'll be debugging, think "this is weird" or "ask X abo
 
 a month later i'm back in the same file. i solve the same problem twice. or worse, i break something i already knew was fragile.
 
-so i built yap - finally a fix for my goldfish memory!! now when i notice something:
+so i built yap - finally a fix for my goldfish memory!! 🐟 now when i notice something:
 
 ```bash
 yap "this retry logic is cursed"
