@@ -1,216 +1,251 @@
 #!/usr/bin/env node
 
-import * as readline from 'readline';
-import { init } from './commands/init.js';
-import { say } from './commands/say.js';
-import { sync } from './commands/sync.js';
-import { ship } from './commands/ship.js';
-import { archive } from './commands/archive.js';
-import { status } from './commands/status.js';
+import { getContext, getRepoRoot } from './context.js';
+import {
+  saveThought,
+  getAllThoughts,
+  getThoughtsToday,
+  getThoughtsThisWeek,
+  getThoughtsByRepo,
+  Thought,
+} from './store.js';
 
-const COMMANDS = ['init', 'sync', 'ship', 'archive', 'status', 'help', '--help', '-h', 'repl'];
+// ANSI colors
+const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
+const green = (s: string) => `\x1b[32m${s}\x1b[0m`;
+const cyan = (s: string) => `\x1b[36m${s}\x1b[0m`;
+const yellow = (s: string) => `\x1b[33m${s}\x1b[0m`;
+const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 
-const args = process.argv.slice(2);
-const command = args[0];
+function formatTime(timestamp: string): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
 
-async function main() {
-  try {
-    // No args = REPL mode
-    if (!command) {
-      await replMode();
-      return;
+  if (isToday) {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase();
+  }
+
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) {
+    return 'yesterday';
+  }
+
+  return date.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase();
+}
+
+function formatThought(t: Thought, showContext: boolean = true): string {
+  const time = dim(formatTime(t.timestamp));
+  const text = `"${t.text}"`;
+  const todo = t.todo ? yellow(' [todo]') : '';
+
+  if (showContext && t.repo) {
+    const context = dim(`${t.repo}${t.branch ? `:${t.branch}` : ''}`);
+    return `  ${time}  ${text}${todo}\n         ${context}`;
+  }
+
+  return `  ${time}  ${text}${todo}`;
+}
+
+function groupByRepo(thoughts: Thought[]): Map<string, Thought[]> {
+  const groups = new Map<string, Thought[]>();
+
+  for (const t of thoughts) {
+    const key = t.repo || 'no repo';
+    if (!groups.has(key)) {
+      groups.set(key, []);
     }
+    groups.get(key)!.push(t);
+  }
 
-    // Known command
-    if (COMMANDS.includes(command)) {
-      switch (command) {
-        case 'init':
-          await init();
-          break;
-        case 'say':
-          // Still support explicit "say" for backwards compat
-          const explicitMsg = args.slice(1).join(' ');
-          if (!explicitMsg) {
-            console.error('Error: Please provide a message.');
-            process.exit(1);
-          }
-          await say(explicitMsg);
-          break;
-        case 'sync':
-          const fullSync = args.includes('--full');
-          await sync({ full: fullSync });
-          break;
-        case 'ship':
-          await ship();
-          break;
-        case 'archive':
-          await archive();
-          break;
-        case 'status':
-          await status();
-          break;
-        case 'repl':
-          await replMode();
-          break;
-        case 'help':
-        case '--help':
-        case '-h':
-          printHelp();
-          break;
-      }
-    } else {
-      // Not a command = treat entire args as a message
-      const message = args.join(' ');
-      await say(message);
+  return groups;
+}
+
+function groupByDirectory(thoughts: Thought[]): Map<string, Thought[]> {
+  const groups = new Map<string, Thought[]>();
+
+  for (const t of thoughts) {
+    // Get relative path from repo root if possible
+    const key = t.directory.split('/').slice(-2).join('/');
+    if (!groups.has(key)) {
+      groups.set(key, []);
     }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(`Error: ${error.message}`);
-    } else {
-      console.error('An unexpected error occurred');
+    groups.get(key)!.push(t);
+  }
+
+  return groups;
+}
+
+// Commands
+
+function capture(text: string): void {
+  const context = getContext();
+
+  saveThought({
+    text,
+    repo: context.repo,
+    branch: context.branch,
+    directory: context.directory,
+    timestamp: context.timestamp,
+  });
+
+  console.log(dim('captured'));
+}
+
+function showLog(filter?: string): void {
+  let thoughts: Thought[];
+  let label: string;
+
+  if (filter === 'today') {
+    thoughts = getThoughtsToday();
+    label = 'today';
+  } else if (filter === 'week' || filter === '--week') {
+    thoughts = getThoughtsThisWeek();
+    label = 'this week';
+  } else {
+    thoughts = getThoughtsThisWeek(); // default to week
+    label = 'this week';
+  }
+
+  if (thoughts.length === 0) {
+    console.log(dim(`no thoughts ${label}`));
+    return;
+  }
+
+  // Sort by timestamp, newest first
+  thoughts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  console.log('');
+  console.log(bold(`  ${thoughts.length} thought${thoughts.length === 1 ? '' : 's'} ${label}`));
+  console.log('');
+
+  const grouped = groupByRepo(thoughts);
+
+  for (const [repo, repoThoughts] of grouped) {
+    console.log(`  ${cyan(repo)} ${dim(`(${repoThoughts.length})`)}`);
+    for (const t of repoThoughts.slice(0, 10)) {
+      console.log(formatThought(t, false));
     }
-    process.exit(1);
+    if (repoThoughts.length > 10) {
+      console.log(dim(`    +${repoThoughts.length - 10} more`));
+    }
+    console.log('');
   }
 }
 
-async function replMode() {
-  console.log('yap REPL - type messages, "ship" when ready, "q" to quit\n');
-  console.log('Shortcuts: D: decision, T: todo, C: constraint, Q: question, A: acceptance');
-  console.log('           X: done, DEL: delete, D!: update decision\n');
+function showHere(): void {
+  const context = getContext();
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+  if (!context.repo) {
+    console.log(dim('not in a git repo'));
+    return;
+  }
 
-  const prompt = () => {
-    rl.question('> ', async (input) => {
-      const trimmed = input.trim();
+  const thoughts = getThoughtsByRepo(context.repo);
 
-      if (!trimmed) {
-        prompt();
-        return;
-      }
+  if (thoughts.length === 0) {
+    console.log(dim(`no thoughts about ${context.repo}`));
+    return;
+  }
 
-      if (trimmed === 'quit' || trimmed === 'exit' || trimmed === 'q') {
-        rl.close();
-        return;
-      }
+  // Sort by timestamp, newest first
+  thoughts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
-      if (trimmed === 'ship') {
-        try {
-          await ship();
-        } catch (e) {
-          console.error(e instanceof Error ? e.message : 'Error');
-        }
-        prompt();
-        return;
-      }
+  // Group by relative directory
+  const grouped = new Map<string, Thought[]>();
+  const repoRoot = getRepoRoot() || context.directory;
 
-      if (trimmed === 'sync') {
-        try {
-          await sync();
-        } catch (e) {
-          console.error(e instanceof Error ? e.message : 'Error');
-        }
-        prompt();
-        return;
-      }
+  for (const t of thoughts) {
+    // Get path relative to repo root
+    let relPath = t.directory.replace(repoRoot, '').replace(/^\//, '') || '.';
+    if (!grouped.has(relPath)) {
+      grouped.set(relPath, []);
+    }
+    grouped.get(relPath)!.push(t);
+  }
 
-      if (trimmed === 'help') {
-        printReplHelp();
-        prompt();
-        return;
-      }
+  console.log('');
+  console.log(bold(`  ${thoughts.length} thought${thoughts.length === 1 ? '' : 's'} in ${context.repo}`));
+  if (context.branch) {
+    console.log(dim(`  branch: ${context.branch}`));
+  }
+  console.log('');
 
-      if (trimmed === 'status') {
-        try {
-          await status();
-        } catch (e) {
-          console.error(e instanceof Error ? e.message : 'Error');
-        }
-        prompt();
-        return;
-      }
-
-      try {
-        await say(trimmed);
-      } catch (e) {
-        console.error(e instanceof Error ? e.message : 'Error');
-      }
-
-      prompt();
-    });
-  };
-
-  prompt();
+  for (const [dir, dirThoughts] of grouped) {
+    console.log(`  ${cyan(dir || '.')} ${dim(`(${dirThoughts.length})`)}`);
+    for (const t of dirThoughts.slice(0, 5)) {
+      const time = dim(formatTime(t.timestamp));
+      const todo = t.todo ? yellow(' [todo]') : '';
+      console.log(`    ${time}  "${t.text}"${todo}`);
+    }
+    if (dirThoughts.length > 5) {
+      console.log(dim(`      +${dirThoughts.length - 5} more`));
+    }
+    console.log('');
+  }
 }
 
-function printReplHelp() {
+function showHelp(): void {
   console.log(`
-REPL COMMANDS:
-  ship      Generate Claude Code instructions
-  sync      Re-sync markers to truth.md
-  quit      Exit REPL (or q, exit)
-  help      Show this help
+${bold('yap')} - capture developer thoughts
 
-MARKERS (prefix your message):
-  D:   or DECISION:      Add a decision
-  C:   or CONSTRAINT:    Add a constraint
-  T:   or TODO:          Add a todo
-  Q:   or QUESTION:      Add a question
-  A:   or ACCEPTANCE:    Add acceptance criteria
-  UX:                    Add UX requirement
-  DOM: or DOMAIN:        Add domain concept
+${bold('usage:')}
+  yap "thought"       capture a thought
+  yap                 capture (opens prompt)
+  yap ?               thoughts about current repo
+  yap log             recent thoughts (this week)
+  yap log today       today's thoughts
+  yap log --week      this week's thoughts
 
-  D!:  or DECISION-UPDATE:  Replace matching decision
-  DEL: or DELETE:           Remove an item
-  X:   or DONE:             Mark todo complete
-  R:   or RESOLVED:         Mark question resolved
-
-EXAMPLES:
-  > D: Use PostgreSQL for storage
-  > T: Write unit tests
-  > X: Write unit tests
-  > D!: Use MySQL instead of PostgreSQL
+${bold('examples:')}
+  yap "this retry logic feels wrong"
+  yap "ask infra about rate limits"
+  yap "come back to this after lunch"
 `);
 }
 
-function printHelp() {
-  console.log(`
-yap - Yap until you're ready to ship
+// Main
 
-USAGE:
-  yap                     Start REPL mode (interactive)
-  yap "<message>"         Add message and sync (no "say" needed)
-  yap <command>           Run a specific command
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
 
-COMMANDS:
-  init          Initialize .yap/ folder
-  status        Show truth.md summary
-  sync          Re-sync markers to truth.md (--full to reprocess all)
-  ship          Generate Claude Code instructions
-  archive       Archive old messages
-  help          Show this help
+  if (args.length === 0) {
+    // No args - show help for now (later: quick capture mode)
+    showHelp();
+    return;
+  }
 
-EXAMPLES:
-  yap init
-  yap "D: Use PostgreSQL"
-  yap "T: Write tests"
-  yap ship
+  const command = args[0];
 
-  # Or use REPL mode:
-  yap
-  > D: Use React for frontend
-  > T: Set up build
-  > ship
+  // yap "thought" - capture
+  if (command.startsWith('"') || command.startsWith("'") || (!['log', '?', 'help', '--help', '-h'].includes(command) && args.length === 1)) {
+    // Join all args as the thought
+    const thought = args.join(' ').replace(/^["']|["']$/g, '');
+    capture(thought);
+    return;
+  }
 
-MARKERS (short form):
-  D:   decision       C:   constraint     T:   todo
-  Q:   question       A:   acceptance     UX:  ux requirement
-  DOM: domain         D!:  update decision
-  DEL: delete item    X:   mark done      R:   resolve question
-`);
+  switch (command) {
+    case '?':
+      showHere();
+      break;
+
+    case 'log':
+      showLog(args[1]);
+      break;
+
+    case 'help':
+    case '--help':
+    case '-h':
+      showHelp();
+      break;
+
+    default:
+      // Treat as thought
+      capture(args.join(' '));
+      break;
+  }
 }
 
-main();
+main().catch(console.error);
