@@ -28,11 +28,6 @@ you're coding and you think "this feels wrong" or "come back to this" or "ask X 
 
 these thoughts don't belong in code comments, commit messages, or issues. they usually just get lost. (at least for me)
 
-- not in the code (clutters it)
-- not in a commit (not ready)
-- not in a ticket (too small)
-- not in notion (too far away)
-
 so it just... disappears. and you forget.
 
 ## the fix
