@@ -8,7 +8,7 @@ $ yap
 
   ghosts:
     3 weeks ago  "retry logic is cursed"
-    3 weeks ago  "ask infra about rate limits" [todo]
+    3 weeks ago  "ask x about rate limits" [todo]
     2 months ago "why is this nullable?"
 
   yap: _
