@@ -15,7 +15,8 @@ const colors = {
 interface SectionStats {
   total: number;
   done: number;
-  items: string[];
+  items: string[];      // raw bullets
+  pending: string[];    // cleaned, only pending items
 }
 
 export async function status(): Promise<void> {
@@ -54,11 +55,11 @@ export async function status(): Promise<void> {
   // TODOs
   const todos = sections.get('## TODOs');
   if (todos && todos.total > 0) {
-    const pending = todos.total - todos.done;
-    const icon = pending === 0 ? colors.green('✓') : colors.yellow('○');
-    const status = todos.done > 0 ? ` ${colors.dim(`(${todos.done} done)`)}` : '';
-    console.log(`  ${icon} ${colors.bold(String(pending))} todo${pending === 1 ? '' : 's'}${status}`);
-    for (const item of todos.items.filter(i => !i.includes('[x]')).slice(0, 3)) {
+    const pendingCount = todos.total - todos.done;
+    const icon = pendingCount === 0 ? colors.green('✓') : colors.yellow('○');
+    const doneStatus = todos.done > 0 ? ` ${colors.dim(`(${todos.done} done)`)}` : '';
+    console.log(`  ${icon} ${colors.bold(String(pendingCount))} todo${pendingCount === 1 ? '' : 's'}${doneStatus}`);
+    for (const item of todos.pending.slice(0, 3)) {
       console.log(`    ${colors.dim('→')} ${truncate(item, 50)}`);
     }
   }
@@ -78,11 +79,11 @@ export async function status(): Promise<void> {
   // Questions
   const questions = sections.get('## Questions');
   if (questions && questions.total > 0) {
-    const pending = questions.total - questions.done;
-    const icon = pending === 0 ? colors.green('✓') : colors.cyan('?');
-    const status = questions.done > 0 ? ` ${colors.dim(`(${questions.done} resolved)`)}` : '';
-    console.log(`  ${icon} ${colors.bold(String(pending))} question${pending === 1 ? '' : 's'}${status}`);
-    for (const item of questions.items.filter(i => !i.includes('[x]')).slice(0, 2)) {
+    const pendingCount = questions.total - questions.done;
+    const icon = pendingCount === 0 ? colors.green('✓') : colors.cyan('?');
+    const resolvedStatus = questions.done > 0 ? ` ${colors.dim(`(${questions.done} resolved)`)}` : '';
+    console.log(`  ${icon} ${colors.bold(String(pendingCount))} question${pendingCount === 1 ? '' : 's'}${resolvedStatus}`);
+    for (const item of questions.pending.slice(0, 2)) {
       console.log(`    ${colors.dim('→')} ${truncate(item, 50)}`);
     }
   }
@@ -118,13 +119,16 @@ function parseSections(content: string): Map<string, SectionStats> {
 
     if (trimmed.startsWith('## ')) {
       currentSection = trimmed;
-      sections.set(currentSection, { total: 0, done: 0, items: [] });
+      sections.set(currentSection, { total: 0, done: 0, items: [], pending: [] });
     } else if (currentSection && (trimmed.startsWith('- ') || trimmed.startsWith('* '))) {
       const stats = sections.get(currentSection)!;
       stats.total++;
-      stats.items.push(cleanBullet(trimmed));
+      const cleaned = cleanBullet(trimmed);
+      stats.items.push(cleaned);
       if (trimmed.includes('[x]') || trimmed.includes('[X]')) {
         stats.done++;
+      } else {
+        stats.pending.push(cleaned);
       }
     }
   }
