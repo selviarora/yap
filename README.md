@@ -53,6 +53,7 @@ yap todo "thought"   # capture as actionable
 yap here             # show thoughts for this repo
 yap log              # show this week
 yap log today        # show today
+yap sync             # push thoughts to CLAUDE.md
 ```
 
 ## it just works
@@ -65,6 +66,24 @@ when you yap, it automatically saves:
 - timestamp
 
 so later when you're like "wtf was i thinking about this file", you just run `yap here` and it all comes back.
+
+## claude code integration
+
+```bash
+yap sync
+```
+
+this writes your thoughts to `CLAUDE.md` in the repo root. when you start Claude Code, it automatically sees what you've been thinking about:
+
+```markdown
+## Developer Thoughts
+
+- this retry logic smells off (Jan 31)
+- ask infra about rate limits [todo] (Jan 31)
+- why is payment_method nullable (Jan 30)
+```
+
+your thoughts become context for Claude. no copy-pasting.
 
 ## storage
 

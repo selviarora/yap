@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
+import path from 'path';
 import { getContext, getRepoRoot } from './context.js';
 import {
   saveThought,
@@ -205,6 +207,72 @@ function showHere(): void {
   }
 }
 
+function syncToClaude(): void {
+  const context = getContext();
+  const repoRoot = getRepoRoot();
+
+  if (!repoRoot) {
+    console.log(dim('not in a git repo'));
+    return;
+  }
+
+  const thoughts = getThoughtsByRepo(context.repo!);
+
+  if (thoughts.length === 0) {
+    console.log(dim('no thoughts to sync'));
+    return;
+  }
+
+  // Sort by timestamp, newest first
+  thoughts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+  // Format thoughts for CLAUDE.md
+  const YAP_START = '<!-- yap:start -->';
+  const YAP_END = '<!-- yap:end -->';
+
+  const thoughtLines = thoughts.slice(0, 20).map(t => {
+    const date = new Date(t.timestamp).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+    const todo = t.todo ? ' [todo]' : '';
+    return `- ${t.text}${todo} _(${date})_`;
+  });
+
+  const yapSection = `${YAP_START}
+## Developer Thoughts
+
+These are thoughts captured while working on this codebase (via [yap](https://github.com/selviarora/yap)):
+
+${thoughtLines.join('\n')}
+${YAP_END}`;
+
+  const claudePath = path.join(repoRoot, 'CLAUDE.md');
+
+  if (fs.existsSync(claudePath)) {
+    let content = fs.readFileSync(claudePath, 'utf-8');
+
+    // Check if yap section exists
+    const startIdx = content.indexOf(YAP_START);
+    const endIdx = content.indexOf(YAP_END);
+
+    if (startIdx !== -1 && endIdx !== -1) {
+      // Replace existing section
+      content = content.slice(0, startIdx) + yapSection + content.slice(endIdx + YAP_END.length);
+    } else {
+      // Append to end
+      content = content.trimEnd() + '\n\n' + yapSection + '\n';
+    }
+
+    fs.writeFileSync(claudePath, content);
+  } else {
+    // Create new CLAUDE.md
+    fs.writeFileSync(claudePath, yapSection + '\n');
+  }
+
+  console.log(green(`synced ${thoughts.length} thought${thoughts.length === 1 ? '' : 's'} to CLAUDE.md`));
+}
+
 function showHelp(): void {
   console.log(`
 ${bold('yap')} - capture thoughts before they disappear
@@ -219,10 +287,13 @@ ${bold('recall:')}
   yap log               this week
   yap log today         just today
 
+${bold('claude code:')}
+  yap sync              push thoughts to CLAUDE.md
+
 ${bold('examples:')}
   yap "this retry logic smells off"
   yap todo "ask infra about rate limits"
-  yap "why is this nullable"
+  yap sync
 `);
 }
 
@@ -255,6 +326,10 @@ async function main(): Promise<void> {
       } else {
         console.log(dim('usage: yap todo "thought"'));
       }
+      break;
+
+    case 'sync':
+      syncToClaude();
       break;
 
     case 'help':
