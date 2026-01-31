@@ -1,7 +1,7 @@
 {
   "name": "yap-cli",
   "version": "1.0.0",
-  "description": "Yap until you're ready to ship. CLI for rambling that extracts structure.",
+  "description": "Terminal-native developer journaling. Capture thoughts before they disappear.",
   "main": "dist/index.js",
   "bin": {
     "yap": "./dist/index.js"
@@ -14,13 +14,13 @@
   },
   "keywords": [
     "cli",
-    "spec",
-    "planning",
-    "decisions",
-    "truth",
-    "claude",
-    "ai",
-    "workflow"
+    "developer",
+    "journal",
+    "notes",
+    "terminal",
+    "capture",
+    "thoughts",
+    "productivity"
   ],
   "author": "Selvi Arora",
   "license": "MIT",

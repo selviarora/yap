@@ -1,40 +1,35 @@
 # yap
 
-yap until you're ready to ship.
-
-<!-- ![demo](./demo.gif) -->
+capture developer thoughts before they disappear.
 
 ```bash
-$ yap
-> thinking about a bookmark manager
-> maybe json file for storage
-> D: Store bookmarks in JSON file
-> D: CLI called "bm"
-> T: Set up project
-> A: bm add <url> works
-> Q: Support tags?
-> nah, skip for v1
-> R: tags
-> status
+$ yap "this retry logic feels wrong"
+captured
 
-  yap status
+$ yap "ask infra about rate limits"
+captured
 
-  ● 2 decisions
-  ○ 1 todo
-  ✓ 0 questions (1 resolved)
+$ yap ?
 
-> ship
+  2 thoughts in payments-service
+  branch: fix/retry-bug
+
+  src/api (2)
+    9:42am  "this retry logic feels wrong"
+    9:51am  "ask infra about rate limits"
 ```
-
-your rambling → clean spec → claude code builds it.
-
-`D:` decision, `T:` todo, `Q:` question, `X:` done. [all markers ↓](#markers)
 
 ## why
 
-when planning, decisions get buried in rambling. by the time you're ready to build, you've forgotten half of what you decided.
+developers think in fragments:
+- "this feels wrong"
+- "come back to this"
+- "why is this like this?"
+- "ask X about Y"
 
-yap extracts the important bits into a clean spec while you think out loud.
+these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost.
+
+yap captures them with zero friction, right where you work: the terminal.
 
 ## install
 
@@ -42,71 +37,69 @@ yap extracts the important bits into a clean spec while you think out loud.
 npm install -g yap-cli
 ```
 
-or clone and `npm link`.
-
-## quick start
+## usage
 
 ```bash
-yap init                # create .yap/ folder
-yap "D: Use SQLite"     # add a decision
-yap "T: Write tests"    # add a todo
-yap status              # see summary
-yap ship                # hand off to Claude Code
+yap "thought"          # capture a thought
+yap ?                  # what was I thinking here? (current repo)
+yap log                # recent thoughts
+yap log today          # today's thoughts
 ```
 
-or just `yap` to enter REPL mode and type naturally.
+## what gets captured
 
-## markers
+when you yap, it saves:
+- your thought
+- timestamp
+- git repo + branch (if in a repo)
+- current directory
 
-| Marker | What | Example |
-|--------|------|---------|
-| `D:` | Decision | `D: Use PostgreSQL` |
-| `T:` | Todo | `T: Write tests` |
-| `C:` | Constraint | `C: Must work offline` |
-| `Q:` | Question | `Q: Redis or Memcached?` |
-| `A:` | Acceptance | `A: User can log in` |
+you never have to add this context manually.
 
-**modifiers:**
+## examples
 
-| Marker | What | Example |
-|--------|------|---------|
-| `D!:` | Update decision | `D!: Use MySQL instead` |
-| `X:` | Mark done | `X: Write tests` |
-| `R:` | Resolve question | `R: Redis` |
-| `DEL:` | Delete item | `DEL: old todo` |
+```bash
+# morning, debugging
+~/payments (main) $ yap "why does this retry 5 times with no backoff"
+captured
 
-## what gets generated
+# later, different file
+~/payments (main) $ yap "User.payment_method nullable but never checked"
+captured
 
-`.yap/truth.md`:
+# lunch, come back confused
+~/payments (main) $ yap ?
 
-```markdown
-## Decisions
-- Store bookmarks in JSON file
-- CLI called "bm"
+  2 thoughts in payments
+  branch: main
 
-## TODOs
-- Set up project
+  src/api (1)
+    9:42am  "why does this retry 5 times with no backoff"
 
-## Acceptance Criteria
-- bm add <url> works
+  src/models (1)
+    10:34am  "User.payment_method nullable but never checked"
 
-## Questions
-- [x] Support tags?
+# end of week
+$ yap log
+
+  7 thoughts this week
+
+  payments (4)
+    ...
+  auth-service (3)
+    ...
 ```
 
-`yap ship` sends this to claude code as the spec.
+## storage
 
-## commands
+thoughts are stored in `~/.yap/thoughts.jsonl`. plain text, yours forever.
 
-| Command | What |
-|---------|------|
-| `yap` | REPL mode |
-| `yap "<msg>"` | Quick add |
-| `yap init` | Set up `.yap/` |
-| `yap status` | Show summary |
-| `yap ship` | Launch Claude Code |
-| `yap sync --full` | Reprocess all |
-| `yap archive` | Archive old messages |
+## philosophy
+
+- capture fast, structure later (or never)
+- context is automatic
+- no AI magic, just recall
+- your thoughts, local, private
 
 ## license
 
