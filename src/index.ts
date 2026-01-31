@@ -96,7 +96,60 @@ function capture(text: string, isTodo: boolean = false): void {
   console.log(dim(isTodo ? 'captured (todo)' : 'captured'));
 }
 
+function formatTimeAgo(timestamp: string): string {
+  const now = new Date();
+  const then = new Date(timestamp);
+  const diffMs = now.getTime() - then.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffWeeks = Math.floor(diffDays / 7);
+  const diffMonths = Math.floor(diffDays / 30);
+
+  if (diffMins < 60) return 'just now';
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays === 1) return 'yesterday';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffWeeks === 1) return '1 week ago';
+  if (diffWeeks < 4) return `${diffWeeks} weeks ago`;
+  if (diffMonths === 1) return '1 month ago';
+  return `${diffMonths} months ago`;
+}
+
+function showGhosts(): boolean {
+  const context = getContext();
+  if (!context.repo) return false;
+
+  const thoughts = getThoughtsByRepo(context.repo);
+  if (thoughts.length === 0) return false;
+
+  // Only show ghosts older than 1 day
+  const oneDayAgo = new Date();
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+  const ghosts = thoughts
+    .filter(t => new Date(t.timestamp) < oneDayAgo)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 5);
+
+  if (ghosts.length === 0) return false;
+
+  console.log('');
+  console.log(dim('  ghosts:'));
+  for (const g of ghosts) {
+    const ago = dim(formatTimeAgo(g.timestamp).padEnd(12));
+    const todo = g.todo ? yellow(' [todo]') : '';
+    console.log(dim(`    ${ago} "${g.text}"${todo}`));
+  }
+  console.log('');
+
+  return true;
+}
+
 async function interactiveCapture(): Promise<void> {
+  // Show ghosts first
+  showGhosts();
+
   const readline = await import('readline');
   const rl = readline.createInterface({
     input: process.stdin,
@@ -104,7 +157,7 @@ async function interactiveCapture(): Promise<void> {
   });
 
   return new Promise((resolve) => {
-    rl.question(dim('yap: '), (answer) => {
+    rl.question(dim('  yap: '), (answer) => {
       rl.close();
       if (answer.trim()) {
         capture(answer.trim());
@@ -275,25 +328,24 @@ ${YAP_END}`;
 
 function showHelp(): void {
   console.log(`
-${bold('yap')} - capture thoughts before they disappear
+${bold('yap')} - your past self, remembered
 
 ${bold('capture:')}
   yap "thought"         save a thought
-  yap                   quick capture
+  yap                   see ghosts + quick capture
   yap todo "thought"    mark as actionable
 
 ${bold('recall:')}
-  yap here              thoughts about this repo
+  yap boo               see ghosts (old thoughts resurface)
+  yap here              all thoughts about this repo
   yap log               this week
-  yap log today         just today
 
-${bold('claude code:')}
+${bold('sync:')}
   yap sync              push thoughts to CLAUDE.md
 
 ${bold('examples:')}
   yap "this retry logic smells off"
   yap todo "ask infra about rate limits"
-  yap sync
 `);
 }
 
@@ -330,6 +382,13 @@ async function main(): Promise<void> {
 
     case 'sync':
       syncToClaude();
+      break;
+
+    case 'boo':
+    case 'ghosts':
+      if (!showGhosts()) {
+        console.log(dim('no ghosts here'));
+      }
       break;
 
     case 'help':

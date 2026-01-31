@@ -1,42 +1,43 @@
 # yap
 
-capture your thoughts before they disappear. 💨
+your past self, remembered.
 
 ```bash
-$ yap "this retry logic smells off"
-captured
+$ cd payments-service
+$ yap
 
-$ yap todo "ask infra about rate limits"
-captured (todo)
+  ghosts:
+    3 weeks ago  "retry logic is cursed"
+    3 weeks ago  "ask infra about rate limits" [todo]
+    2 months ago "why is this nullable?"
 
-$ yap here
-
-  3 thoughts in payments-service
-  branch: fix/retry-bug
-
-  src/api (2)
-    9:42am  "this retry logic smells off"
-    10:15am "ask infra about rate limits" [todo]
-
-  src/models (1)
-    10:34am "why is payment_method nullable"
+  yap: _
 ```
 
 ## the problem
 
-you're coding and you think "this feels wrong" or "come back to this" or "ask X about Y"
+you're debugging something. you think "this is weird" or "ask X about this."
 
-these thoughts don't belong in code comments, commit messages, or issues. they usually just get lost. (at least for me)
-
-so it just... disappears. and you forget.
+a month later you're back in the same file. you've mass forgotten what you figured out. you solve the same problem twice. or worse, you break something your past self knew was fragile.
 
 ## the fix
 
 ```bash
-yap "thought"
+yap "this retry logic is cursed"
 ```
 
-that's it. it saves your thought with the repo, branch, and directory automatically. you don't have to context-switch or open anything.
+yap captures your thought with full context (repo, branch, directory).
+
+later, when you come back:
+
+```bash
+$ yap
+
+  ghosts:
+    3 weeks ago  "this retry logic is cursed"
+```
+
+your past self, whispering warnings.
 
 ## install
 
@@ -47,25 +48,39 @@ npm install -g yap-cli
 ## commands
 
 ```bash
-yap "thought"        # capture
-yap                  # quick capture (interactive)
-yap todo "thought"   # capture as actionable
-yap here             # show thoughts for this repo
-yap log              # show this week
-yap log today        # show today
-yap sync             # push thoughts to CLAUDE.md
+yap "thought"        # capture a thought
+yap                  # see ghosts + capture
+yap boo              # just see ghosts
+yap todo "thought"   # mark as actionable
+yap here             # all thoughts for this repo
+yap log              # this week's thoughts
+yap sync             # push to CLAUDE.md for Claude Code
 ```
 
-## it just works
+## ghosts
 
-when you yap, it automatically saves:
-- what you said
-- which repo you're in
-- which branch
-- which directory
-- timestamp
+ghosts are old thoughts (> 1 day) that resurface when you return to a repo.
 
-so later when you're like "wtf was i thinking about this file", you just run `yap here` and it all comes back.
+they show automatically when you type `yap` with no args. or use `yap boo`.
+
+## auto-ghosts on cd (optional)
+
+add to your `~/.zshrc`:
+
+```bash
+function cd() {
+  builtin cd "$@" && yap boo 2>/dev/null
+}
+```
+
+now ghosts appear whenever you enter a repo:
+
+```bash
+$ cd payments-service
+
+  ghosts:
+    3 weeks ago  "retry logic is cursed"
+```
 
 ## claude code integration
 
@@ -73,21 +88,11 @@ so later when you're like "wtf was i thinking about this file", you just run `ya
 yap sync
 ```
 
-this writes your thoughts to `CLAUDE.md` in the repo root. when you start Claude Code, it automatically sees what you've been thinking about:
-
-```markdown
-## Developer Thoughts
-
-- this retry logic smells off (Jan 31)
-- ask infra about rate limits [todo] (Jan 31)
-- why is payment_method nullable (Jan 30)
-```
-
-your thoughts become context for Claude. no copy-pasting.
+pushes your thoughts to `CLAUDE.md`. when you start Claude Code, it sees what your past self was thinking.
 
 ## storage
 
-everything lives in `~/.yap/thoughts.jsonl`. plain text, local, yours.
+`~/.yap/thoughts.jsonl` - plain text, local, yours.
 
 ## license
 
