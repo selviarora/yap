@@ -1,6 +1,6 @@
 # yap
 
-your past self, remembered. 👻
+past me helps present me. 👻
 
 ```bash
 $ cd payments-service

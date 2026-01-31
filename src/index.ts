@@ -328,7 +328,7 @@ ${YAP_END}`;
 
 function showHelp(): void {
   console.log(`
-${bold('yap')} - your past self, remembered
+${bold('yap')} - past me helps present me
 
 ${bold('capture:')}
   yap "thought"         save a thought
