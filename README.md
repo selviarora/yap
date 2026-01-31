@@ -1,6 +1,6 @@
 # yap
 
-your past self, remembered.
+your past self, remembered. 👻
 
 ```bash
 $ cd payments-service
@@ -14,21 +14,21 @@ $ yap
   yap: _
 ```
 
-## the problem
+## why i made this
 
-you're debugging something. you think "this is weird" or "ask X about this."
+i keep mass forgetting things. i'll be debugging, think "this is weird" or "ask X about this," and then... nothing. i move on.
 
-a month later you're back in the same file. you've mass forgotten what you figured out. you solve the same problem twice. or worse, you break something your past self knew was fragile.
+a month later i'm back in the same file. i solve the same problem twice. or worse, i break something i already knew was fragile.
 
-## the fix
+so i built yap. now when i notice something:
 
 ```bash
 yap "this retry logic is cursed"
 ```
 
-yap captures your thought with full context (repo, branch, directory).
+it saves my thought with the repo, branch, and directory.
 
-later, when you come back:
+later when i come back, my old thoughts show up as "ghosts":
 
 ```bash
 $ yap
@@ -37,7 +37,7 @@ $ yap
     3 weeks ago  "this retry logic is cursed"
 ```
 
-your past self, whispering warnings.
+past me, warning present me.
 
 ## install
 
@@ -48,7 +48,7 @@ npm install -g yap-cli
 ## commands
 
 ```bash
-yap "thought"        # capture a thought
+yap "thought"        # capture
 yap                  # see ghosts + capture
 yap boo              # just see ghosts
 yap todo "thought"   # mark as actionable
@@ -59,40 +59,30 @@ yap sync             # push to CLAUDE.md for Claude Code
 
 ## ghosts
 
-ghosts are old thoughts (> 1 day) that resurface when you return to a repo.
-
-they show automatically when you type `yap` with no args. or use `yap boo`.
+ghosts are thoughts older than 1 day. they resurface when you type `yap` or `yap boo`.
 
 ## auto-ghosts on cd (optional)
 
-add to your `~/.zshrc`:
-
 ```bash
+# add to ~/.zshrc
 function cd() {
   builtin cd "$@" && yap boo 2>/dev/null
 }
 ```
 
-now ghosts appear whenever you enter a repo:
+now ghosts greet you when you enter a repo.
 
-```bash
-$ cd payments-service
-
-  ghosts:
-    3 weeks ago  "retry logic is cursed"
-```
-
-## claude code integration
+## claude code
 
 ```bash
 yap sync
 ```
 
-pushes your thoughts to `CLAUDE.md`. when you start Claude Code, it sees what your past self was thinking.
+pushes thoughts to `CLAUDE.md`. claude code reads it automatically - so it knows what past me was worried about.
 
 ## storage
 
-`~/.yap/thoughts.jsonl` - plain text, local, yours.
+`~/.yap/thoughts.jsonl` - local, plain text, yours.
 
 ## license
 
