@@ -27,7 +27,7 @@ developers think in fragments:
 - "why is this like this?"
 - "ask X about Y"
 
-these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost.
+these thoughts don't belong in code comments, commit messages, or tickets. they usually just get lost. (at least for me 🤓) 
 
 yap captures them with zero friction, right where you work: the terminal.
 
