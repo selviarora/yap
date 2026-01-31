@@ -6,8 +6,9 @@ import { say } from './commands/say.js';
 import { sync } from './commands/sync.js';
 import { ship } from './commands/ship.js';
 import { archive } from './commands/archive.js';
+import { status } from './commands/status.js';
 
-const COMMANDS = ['init', 'sync', 'ship', 'archive', 'help', '--help', '-h', 'repl'];
+const COMMANDS = ['init', 'sync', 'ship', 'archive', 'status', 'help', '--help', '-h', 'repl'];
 
 const args = process.argv.slice(2);
 const command = args[0];
@@ -44,6 +45,9 @@ async function main() {
           break;
         case 'archive':
           await archive();
+          break;
+        case 'status':
+          await status();
           break;
         case 'repl':
           await replMode();
@@ -119,6 +123,16 @@ async function replMode() {
         return;
       }
 
+      if (trimmed === 'status') {
+        try {
+          await status();
+        } catch (e) {
+          console.error(e instanceof Error ? e.message : 'Error');
+        }
+        prompt();
+        return;
+      }
+
       try {
         await say(trimmed);
       } catch (e) {
@@ -173,6 +187,7 @@ USAGE:
 
 COMMANDS:
   init          Initialize .yap/ folder
+  status        Show truth.md summary
   sync          Re-sync markers to truth.md (--full to reprocess all)
   ship          Generate Claude Code instructions
   archive       Archive old messages

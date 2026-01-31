@@ -151,6 +151,7 @@ $ yap "T: Add migration script"           # new todo
 | `yap` | REPL mode - just type |
 | `yap "<msg>"` | Quick add without REPL |
 | `yap init` | Set up `.yap/` folder |
+| `yap status` | Show truth.md summary |
 | `yap ship` | Launch Claude Code with spec |
 | `yap sync --full` | Reprocess all messages |
 | `yap archive` | Archive old messages |
