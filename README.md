@@ -16,7 +16,7 @@ $ yap
 
 ## why i made this
 
-i keep forgetting things. i'll be debugging, think "this is weird" or "ask X about this," and then... nothing. i move on.
+i keep forgetting things. i'll be debugging, think "this is weird" or "ask X about this" - messy stuff i'd never put in a comment - and then... nothing. i move on.
 
 a month later i'm back in the same file. i solve the same problem twice. or worse, i break something i already knew was fragile.
 
