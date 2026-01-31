@@ -1,6 +1,6 @@
 # yap
 
-capture developer thoughts before they disappear.
+capture your thoughts before they disappear.
 
 ```bash
 $ yap "this retry logic feels wrong"
