@@ -26,7 +26,7 @@ $ yap
 > ship
 ```
 
-your rambling → clean spec → Claude Code builds it.
+your rambling → clean spec → claude code builds it.
 
 ## why
 
@@ -92,7 +92,7 @@ or just `yap` to enter REPL mode and type naturally.
 - [x] Support tags?
 ```
 
-`yap ship` sends this to Claude Code as the spec.
+`yap ship` sends this to claude code as the spec.
 
 ## commands
 
