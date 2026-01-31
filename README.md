@@ -1,8 +1,8 @@
 # yap
 
-Yap until you're ready to ship.
+yap until you're ready to ship!!
 
-A CLI for free-form conversations that maintain a living "truth" document. Ramble, mark what matters, then hand off to Claude Code.
+a CLI for free-form conversations that maintain a living "truth" document. Ramble, mark what matters, then hand off to Claude Code.
 
 ## Installation
 
@@ -20,7 +20,7 @@ npm link  # makes 'yap' available globally
 cd your-project
 yap init
 
-# Add messages (no "say" needed!)
+# Add messages 
 yap "D: Use SQLite for storage"
 yap "T: Set up the database"
 yap "A: User can add and list items"
@@ -37,7 +37,7 @@ yap
 yap ship
 ```
 
-## Commands
+## commands
 
 | Command | Description |
 |---------|-------------|
@@ -49,11 +49,11 @@ yap ship
 | `yap archive` | Archive conversation, keep truth.md |
 | `yap help` | Show help |
 
-## Markers
+## markers
 
 Use these prefixes to capture items in truth.md:
 
-### Short Form (recommended)
+### short forms(recommended)
 
 | Marker | Meaning | Example |
 |--------|---------|---------|
@@ -65,7 +65,7 @@ Use these prefixes to capture items in truth.md:
 | `UX:` | UX requirement | `UX: Show loading spinner` |
 | `DOM:` | Domain concept | `DOM: A "task" has title and status` |
 
-### Modifiers
+### modifiers
 
 | Marker | Meaning | Example |
 |--------|---------|---------|
@@ -74,11 +74,11 @@ Use these prefixes to capture items in truth.md:
 | `X:` | Mark TODO done | `X: Write tests` |
 | `R:` | Resolve question | `R: Redis` |
 
-### Long Form (also supported)
+### long forms
 
 `DECISION:`, `CONSTRAINT:`, `TODO:`, `QUESTION:`, `ACCEPTANCE:`, `DOMAIN:`, `DECISION-UPDATE:`, `DELETE:`, `DONE:`, `RESOLVED:`
 
-## Example Session
+## example session
 
 ```bash
 yap init
@@ -105,16 +105,16 @@ yap "X: Set up project"
 yap ship
 ```
 
-## How Sync Works
+## how sync works
 
-1. **Incremental**: Only new messages are processed
-2. **Respects edits**: Manual edits to truth.md are preserved
-3. **No duplicates**: Same marker twice won't duplicate
-4. **State tracking**: `.assistant/.sync-state.json` tracks progress
+1. only new messages are processed
+2. manual edits to truth.md are preserved
+3. same marker twice won't duplicate
+4. `.assistant/.sync-state.json` tracks progress
 
-Use `yap sync --full` to reprocess everything (useful if state gets corrupted).
+Use `yap sync --full` to reprocess everything (useful if state gets corrupted). 
 
-## File Structure
+## file structure
 
 ```
 your-project/
@@ -127,22 +127,10 @@ your-project/
 └── SHIP_INSTRUCTIONS.md       # Generated on ship
 ```
 
-## Running Tests
-
-```bash
-npm test
-```
 
 ## Philosophy
 
-- **Chat freely** - Not everything needs to be captured
-- **Mark what matters** - Use prefixes to extract truth
-- **Edit truth.md** - It's yours, manual edits are preserved
-- **Ship when ready** - Claude Code gets a clean spec
-
-## What's NOT Included (v1)
-
-- No AI-powered sync (markers only)
-- No web UI
-- No external database
-- No background processes
+- **chat freely** - not everything needs to be captured
+- **mark what matters** - use prefixes to extract truth
+- **Edit truth.md** - it's yours, manual edits are preserved
+- **ship when ready** - caude Code gets a clean spec ❇️
