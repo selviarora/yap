@@ -1,5 +1,5 @@
 {
-  "name": "yap-cli",
+  "name": "yapghost",
   "version": "1.0.0",
   "description": "Terminal-native developer journaling. Capture thoughts before they disappear.",
   "main": "dist/index.js",

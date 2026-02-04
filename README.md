@@ -42,7 +42,7 @@ past me, warning present me.
 ## install
 
 ```bash
-npm install -g yap-cli
+npm install -g yapghost
 ```
 
 ## commands
